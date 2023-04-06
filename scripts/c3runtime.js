@@ -3673,20 +3673,6 @@ err)}}};
 
 {
 self["C3_Shaders"] = {};
-self["C3_Shaders"]["noise"] = {
-	glsl: "#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define highmedp highp\n#else\n#define highmedp mediump\n#endif\nvarying mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nuniform highmedp float seconds;\nuniform lowp float intensity;\nuniform lowp float noiseColor;\nvoid main(void)\n{\nlowp vec4 front = texture2D(samplerFront, vTex);\nlowp float a = front.a;\nif (a != 0.0)\nfront.rgb /= a;\nhighmedp float seconds_mod = mod(seconds, 10.0);\nmediump vec3 noise = vec3(fract(sin(dot(vTex.xy, vec2(12.9898,78.233)) + seconds_mod) * 43758.5453),\nfract(sin(dot(vTex.yx, vec2(12.9898,-78.233)) + seconds_mod) * 43758.5453),\nfract(sin(dot(vTex.xy, vec2(-12.9898,-78.233)) + seconds_mod) * 43758.5453));\nnoise = mix(vec3(noise.r), noise, noiseColor);\nfront.rgb += (noise * intensity) - (intensity / 2.0);\nfront.rgb *= a;\ngl_FragColor = front;\n}",
-	glslWebGL2: "",
-	wgsl: "%%SAMPLERFRONT_BINDING%% var samplerFront : sampler;\n%%TEXTUREFRONT_BINDING%% var textureFront : texture_2d<f32>;\nstruct ShaderParams {\nintensity : f32,\nnoiseColor : f32\n};\n%%SHADERPARAMS_BINDING%% var<uniform> shaderParams : ShaderParams;\n%%C3PARAMS_STRUCT%%\n%%C3_UTILITY_FUNCTIONS%%\n%%FRAGMENTINPUT_STRUCT%%\n%%FRAGMENTOUTPUT_STRUCT%%\n@fragment\nfn main(input : FragmentInput) -> FragmentOutput\n{\nvar front : vec4<f32> = c3_unpremultiply(textureSample(textureFront, samplerFront, input.fragUV));\nvar seconds_mod : f32 = c3Params.seconds % 10.0;\nvar noise : vec3<f32> = vec3<f32>(\nfract(sin(dot(input.fragUV.xy, vec2<f32>(12.9898,78.233)) + seconds_mod) * 43758.5453),\nfract(sin(dot(input.fragUV.yx, vec2<f32>(12.9898,-78.233)) + seconds_mod) * 43758.5453),\nfract(sin(dot(input.fragUV.xy, vec2<f32>(-12.9898,-78.233)) + seconds_mod) * 43758.5453));\nnoise = mix(vec3<f32>(noise.r), noise, shaderParams.noiseColor);\nvar output : FragmentOutput;\noutput.color = vec4<f32>((front.rgb + ((noise * shaderParams.intensity) - (shaderParams.intensity / 2.0))) * front.a, front.a);\nreturn output;\n}",
-	blendsBackground: false,
-	usesDepth: false,
-	extendBoxHorizontal: 0,
-	extendBoxVertical: 0,
-	crossSampling: false,
-	mustPreDraw: false,
-	preservesOpaqueness: true,
-	animated: true,
-	parameters: [["intensity",0,"percent"],["noiseColor",0,"percent"]]
-};
 self["C3_Shaders"]["blurhorizontal"] = {
 	glsl: "varying mediump vec2 vTex;\nuniform mediump sampler2D samplerFront;\nuniform mediump vec2 pixelSize;\nuniform mediump float intensity;\nvoid main(void)\n{\nmediump vec4 sum = vec4(0.0);\nmediump float pixelWidth = pixelSize.x;\nmediump float halfPixelWidth = pixelWidth / 2.0;\nsum += texture2D(samplerFront, vTex - vec2(pixelWidth * 7.0 + halfPixelWidth, 0.0)) * 0.06;\nsum += texture2D(samplerFront, vTex - vec2(pixelWidth * 5.0 + halfPixelWidth, 0.0)) * 0.10;\nsum += texture2D(samplerFront, vTex - vec2(pixelWidth * 3.0 + halfPixelWidth, 0.0)) * 0.13;\nsum += texture2D(samplerFront, vTex - vec2(pixelWidth * 1.0 + halfPixelWidth, 0.0)) * 0.16;\nmediump vec4 front = texture2D(samplerFront, vTex);\nsum += front * 0.10;\nsum += texture2D(samplerFront, vTex + vec2(pixelWidth * 1.0 + halfPixelWidth, 0.0)) * 0.16;\nsum += texture2D(samplerFront, vTex + vec2(pixelWidth * 3.0 + halfPixelWidth, 0.0)) * 0.13;\nsum += texture2D(samplerFront, vTex + vec2(pixelWidth * 5.0 + halfPixelWidth, 0.0)) * 0.10;\nsum += texture2D(samplerFront, vTex + vec2(pixelWidth * 7.0 + halfPixelWidth, 0.0)) * 0.06;\ngl_FragColor = mix(front, sum, intensity);\n}",
 	glslWebGL2: "",
